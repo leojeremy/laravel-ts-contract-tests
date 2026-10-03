@@ -122,11 +122,11 @@ Other targets:
 | `make contracts-check` | fail if the fixtures differ from what the API returns now |
 | `make drift-demo` | the table above |
 
-The tests need no `.env` and no database server (SQLite in memory). To run the API itself:
+`composer install` copies `api/.env.example` to `api/.env` if there is none. The tests need no app key and no database server (they use SQLite in memory). To run the API itself:
 
 ```bash
 cd api
-cp .env.example .env && php artisan key:generate
+php artisan key:generate
 touch database/database.sqlite && php artisan migrate
 php artisan serve
 ```
