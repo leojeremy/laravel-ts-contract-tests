@@ -95,7 +95,9 @@ All of them extend `ApiError`, so callers can catch broadly or narrowly.
 
 The script exits non-zero if any scenario does not fail the way the table says, and CI runs it on every push (the `drift-demo` job).
 
-**To see a red build in CI**, open Actions → CI → Run workflow and pick a drift. The workflow applies that patch before the suites run, and the matching job fails. Alternatively, push a branch with a patch applied:
+**To see a red build in CI**, open Actions → CI → Run workflow and pick a drift. The workflow applies that patch before the suites run, and the matching job fails. [Here is a run with `api-rename` applied](https://github.com/leojeremy/laravel-ts-contract-tests/actions/runs/37102558127): the three Pest jobs fail with `tasks.index.data[0]: missing key [dueOn]` and `unexpected key [dueDate]`, and the client jobs pass because the committed fixtures have not changed.
+
+Alternatively, push a branch with a patch applied:
 
 ```bash
 git switch -c demo/api-rename
