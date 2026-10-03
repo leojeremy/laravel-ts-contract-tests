@@ -1,0 +1,11 @@
+diff --git a/client/src/api.ts b/client/src/api.ts
+--- a/client/src/api.ts
++++ b/client/src/api.ts
+@@ -21,6 +21,7 @@ export interface Task {
+   /** Calendar date, `YYYY-MM-DD`. */
+   dueOn: string | null;
+   locked: boolean;
++  priority: number;
+   /** ISO 8601 timestamps. */
+   createdAt: string;
+   updatedAt: string;

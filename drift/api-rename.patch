@@ -1,0 +1,12 @@
+diff --git a/api/app/Http/Resources/TaskResource.php b/api/app/Http/Resources/TaskResource.php
+--- a/api/app/Http/Resources/TaskResource.php
++++ b/api/app/Http/Resources/TaskResource.php
+@@ -25,7 +25,7 @@ class TaskResource extends JsonResource
+             'title' => $this->title,
+             'notes' => $this->notes,
+             'status' => $this->status->value,
+-            'dueOn' => $this->due_on?->toDateString(),
++            'dueDate' => $this->due_on?->toDateString(),
+             'locked' => $this->isLocked(),
+             'createdAt' => $this->created_at->toIso8601String(),
+             'updatedAt' => $this->updated_at->toIso8601String(),

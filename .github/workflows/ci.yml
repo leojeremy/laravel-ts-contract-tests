@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Run by hand with a deliberate drift applied, to see a red build:
+  # Actions → CI → Run workflow → pick a drift.
+  workflow_dispatch:
+    inputs:
+      drift:
+        description: Deliberate drift to apply before the suites run (see drift/)
+        type: choice
+        default: none
+        options: [none, api-rename, api-adds-field, client-drift]
+
+jobs:
+  api:
+    name: API (Pest, PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.3', '8.4', '8.5']
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Apply deliberate drift
+        if: inputs.drift && inputs.drift != 'none'
+        run: git apply drift/${{ inputs.drift }}.patch
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_sqlite
+          coverage: none
+
+      - name: Install
+        working-directory: api
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Pint
+        working-directory: api
+        run: vendor/bin/pint --test
+
+      - name: Pest (responses must match contracts/)
+        working-directory: api
+        run: vendor/bin/pest
+
+      # Shape is checked above. This also fails when a value's FORMAT changes
+      # (say, a date) without the fixtures being re-captured and reviewed.
+      - name: Fixtures are exactly what the API returns now
+        if: matrix.php == '8.5'
+        run: make contracts-check
+
+  client:
+    name: Client (tsc + Vitest, Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Apply deliberate drift
+        if: inputs.drift && inputs.drift != 'none'
+        run: git apply drift/${{ inputs.drift }}.patch
+
+      # api-adds-field only bites once the fixtures are re-captured, which
+      # needs the API; do that here so the client job sees the new fixtures.
+      - uses: shivammathur/setup-php@v2
+        if: inputs.drift == 'api-adds-field'
+        with:
+          php-version: '8.5'
+          coverage: none
+      - name: Re-capture fixtures from the drifted API
+        if: inputs.drift == 'api-adds-field'
+        run: |
+          (cd api && composer install --no-interaction --no-progress --prefer-dist)
+          make contracts
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install
+        working-directory: client
+        run: npm ci --no-audit --no-fund
+
+      - name: Type-check (the satisfies lock) and Vitest
+        working-directory: client
+        run: npm test
+
+  drift-demo:
+    name: Drift demo (each drift is caught)
+    if: ${{ !inputs.drift || inputs.drift == 'none' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install
+        run: make setup
+
+      - name: Run every drift scenario
+        run: make drift-demo
