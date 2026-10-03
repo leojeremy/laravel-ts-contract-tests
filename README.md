@@ -174,7 +174,7 @@ Makefile
 
 ## Background
 
-The pattern comes from a Laravel API and a TypeScript storefront I built in 2026 (pre-launch, not run at scale). This repo is a clean re-implementation with a neutral example domain. It also closes two gaps the original had: the `satisfies` check now actually runs in CI (`tsc --noEmit` before Vitest), and every endpoint the client uses has a fixture checked on both sides.
+The pattern comes from a Laravel API and a TypeScript front end I built in 2026 (pre-launch, not run at scale). This repo is a clean re-implementation with a neutral example domain. It also closes two gaps the original had: the `satisfies` check now actually runs in CI (`tsc --noEmit` before Vitest), and every endpoint the client uses has a fixture checked on both sides.
 
 ## License
 
