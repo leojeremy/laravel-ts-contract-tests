@@ -95,7 +95,13 @@ All of them extend `ApiError`, so callers can catch broadly or narrowly.
 
 The script exits non-zero if any scenario does not fail the way the table says, and CI runs it on every push (the `drift-demo` job).
 
-**To see a red build in CI**, open Actions → CI → Run workflow and pick a drift. The workflow applies that patch before the suites run, and the matching job fails. [Here is a run with `api-rename` applied](https://github.com/leojeremy/laravel-ts-contract-tests/actions/runs/37102558127): the three Pest jobs fail with `tasks.index.data[0]: missing key [dueOn]` and `unexpected key [dueDate]`, and the client jobs pass because the committed fixtures have not changed.
+**To see a red build in CI**, open Actions → CI → Run workflow and pick a drift. The workflow applies that patch before the suites run. These runs were made that way:
+
+| Drift | Red run | What fails |
+|---|---|---|
+| `api-rename` | [run 37102558127](https://github.com/leojeremy/laravel-ts-contract-tests/actions/runs/37102558127) | The three Pest jobs: `tasks.index.data[0]: missing key [dueOn]`, `unexpected key [dueDate]`. The client jobs pass, because the committed fixtures have not changed. |
+| `client-drift` | [run 37102777328](https://github.com/leojeremy/laravel-ts-contract-tests/actions/runs/37102777328) | The two client jobs, at `tsc`: no fixture satisfies a `Task` with `priority`. The Pest jobs pass. |
+| `api-adds-field` | [run 37102782609](https://github.com/leojeremy/laravel-ts-contract-tests/actions/runs/37102782609) | Pest, against the committed fixtures (`unexpected key [priority]`). The client jobs re-capture the fixtures first; there `tsc` passes and the runtime check fails with `extra: [ 'priority' ]`. |
 
 Alternatively, push a branch with a patch applied:
 
