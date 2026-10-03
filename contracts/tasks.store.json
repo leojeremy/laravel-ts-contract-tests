@@ -1,0 +1,12 @@
+{
+    "data": {
+        "id": 3,
+        "title": "Review the diff",
+        "notes": null,
+        "status": "todo",
+        "dueOn": "2026-02-01",
+        "locked": false,
+        "createdAt": "2026-01-15T09:30:00+00:00",
+        "updatedAt": "2026-01-15T09:30:00+00:00"
+    }
+}
